@@ -136,7 +136,7 @@ export const adminSlice = createSlice({
       .addCase(getAllTodos.fulfilled, (state, action) => {
         state.isLoading = false
         state.todos = action.payload
-        state.recentTodos = action.payload.slice(0, 10)
+        state.recentTodos = action.payload
       })
       .addCase(getAllTodos.rejected, (state, action) => {
         state.isLoading = false
