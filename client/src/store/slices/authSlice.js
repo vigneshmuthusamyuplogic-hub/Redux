@@ -85,8 +85,8 @@ export const authSlice = createSlice({
     logout: (state) => {
       localStorage.removeItem('user')
       localStorage.removeItem('token')
-      // state.user = null
-      // state.token = null
+      state.user = null
+      state.token = null
       state.isError = false
       state.isSuccess = false
       state.isLoading = false
