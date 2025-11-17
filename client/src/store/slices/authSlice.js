@@ -26,7 +26,6 @@ export const register = createAsyncThunk(
         localStorage.setItem('user', JSON.stringify(response.data.user))
         localStorage.setItem('token', response.data.token)
       }
-      
       return response.data
     } catch (error) {
       const message = error.response?.data?.message || error.message
@@ -45,8 +44,6 @@ export const login = createAsyncThunk(
         localStorage.setItem('user', JSON.stringify(response.data.user))
         localStorage.setItem('token', response.data.token)
       }
-      console.log(response.data);
-      
       return response.data
     } catch (error) {
       const message = error.response?.data?.message || error.message

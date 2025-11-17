@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
 
     // Check if user exists
     let user = await User.findOne({ $or: [{ email }, { username }] });
@@ -22,8 +22,11 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Only allow 'user' role for registration, admin must be created manually
+    const userRole = role === 'admin' ? 'user' : 'user';
+
     // Create user
-    user = new User({ username, email, password });
+    user = new User({ username, email, password, role: userRole });
     await user.save();
 
     // Generate token
@@ -35,7 +38,8 @@ exports.register = async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
@@ -59,6 +63,11 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(400).json({ message: 'Account is deactivated' });
+    }
+
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -74,14 +83,14 @@ exports.login = async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
 
 // Get current user
 exports.getMe = async (req, res) => {
@@ -90,7 +99,8 @@ exports.getMe = async (req, res) => {
       user: {
         id: req.user._id,
         username: req.user.username,
-        email: req.user.email
+        email: req.user.email,
+        role: req.user.role
       }
     });
   } catch (error) {

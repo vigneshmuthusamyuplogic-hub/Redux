@@ -21,6 +21,10 @@ const Home = () => {
     navigate('/login')
   }
 
+  const handleAdminDashboard = () => {
+    navigate('/admin')
+  }
+
   // Ensure todos is always an array to prevent filter errors
   const todosArray = Array.isArray(todos) ? todos : []
   const completedTodos = todosArray.filter(todo => todo.completed)
@@ -36,7 +40,17 @@ const Home = () => {
               <h1 className="text-xl font-semibold">Contact Manager</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Hello, {user?.username}</span>
+              <span className="text-gray-700">
+                {user?.username} ({user?.role})
+              </span>
+              {user?.role === 'admin' && (
+                <button
+                  onClick={handleAdminDashboard}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  Admin Dashboard
+                </button>
+              )}
               <button
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -57,79 +71,110 @@ const Home = () => {
               Welcome to Your Contact Manager, {user?.username}!
             </h2>
             <p className="text-gray-600">
-              Manage your contacts with ease. Add, edit, and organize your contacts with their mobile numbers.
+              {user?.role === 'admin' 
+                ? 'You have admin privileges. Manage users and view all contacts.'
+                : 'Manage your contacts with ease. Add, edit, and organize your contacts.'
+              }
             </p>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow p-4 text-center">
-              <h3 className="text-lg font-semibold text-gray-900">Total Contacts</h3>
-              <p className="text-3xl font-bold text-indigo-600">{todosArray.length}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-4 text-center">
-              <h3 className="text-lg font-semibold text-gray-900">Completed</h3>
-              <p className="text-3xl font-bold text-green-600">{completedTodos.length}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-4 text-center">
-              <h3 className="text-lg font-semibold text-gray-900">Pending</h3>
-              <p className="text-3xl font-bold text-yellow-600">{pendingTodos.length}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Add Todo Form */}
-            <div className="lg:col-span-1">
-              <TodoForm />
-            </div>
-
-            {/* Todo List */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-6 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold">Your Contacts</h3>
+          {/* User-specific content */}
+          {user?.role === 'user' && (
+            <>
+              {/* Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-white rounded-lg shadow p-4 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Total Contacts</h3>
+                  <p className="text-3xl font-bold text-indigo-600">{todosArray.length}</p>
                 </div>
-
-                <div className="p-6">
-                  {isLoading ? (
-                    <div className="text-center py-4">
-                      <p className="text-gray-500">Loading contacts...</p>
-                    </div>
-                  ) : todosArray.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">No contacts yet. Add your first contact above!</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {/* Pending Todos */}
-                      {pendingTodos.length > 0 && (
-                        <div>
-                          <h4 className="font-medium text-gray-700 mb-3">Pending ({pendingTodos.length})</h4>
-                          <div className="space-y-3">
-                            {pendingTodos.map(todo => (
-                              <TodoItem key={todo._id} todo={todo} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Completed Todos */}
-                      {completedTodos.length > 0 && (
-                        <div>
-                          <h4 className="font-medium text-gray-700 mb-3 mt-6">Completed ({completedTodos.length})</h4>
-                          <div className="space-y-3">
-                            {completedTodos.map(todo => (
-                              <TodoItem key={todo._id} todo={todo} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                <div className="bg-white rounded-lg shadow p-4 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Completed</h3>
+                  <p className="text-3xl font-bold text-green-600">{completedTodos.length}</p>
+                </div>
+                <div className="bg-white rounded-lg shadow p-4 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Pending</h3>
+                  <p className="text-3xl font-bold text-yellow-600">{pendingTodos.length}</p>
                 </div>
               </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Add Todo Form */}
+                <div className="lg:col-span-1">
+                  <TodoForm />
+                </div>
+
+                {/* Todo List */}
+                <div className="lg:col-span-2">
+                  <div className="bg-white rounded-lg shadow">
+                    <div className="p-6 border-b border-gray-200">
+                      <h3 className="text-lg font-semibold">Your Contacts</h3>
+                    </div>
+
+                    <div className="p-6">
+                      {isLoading ? (
+                        <div className="text-center py-4">
+                          <p className="text-gray-500">Loading contacts...</p>
+                        </div>
+                      ) : todosArray.length === 0 ? (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">No contacts yet. Add your first contact above!</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {/* Pending Todos */}
+                          {pendingTodos.length > 0 && (
+                            <div>
+                              <h4 className="font-medium text-gray-700 mb-3">Pending ({pendingTodos.length})</h4>
+                              <div className="space-y-3">
+                                {pendingTodos.map(todo => (
+                                  <TodoItem key={todo._id} todo={todo} />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Completed Todos */}
+                          {completedTodos.length > 0 && (
+                            <div>
+                              <h4 className="font-medium text-gray-700 mb-3 mt-6">Completed ({completedTodos.length})</h4>
+                              <div className="space-y-3">
+                                {completedTodos.map(todo => (
+                                  <TodoItem key={todo._id} todo={todo} />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Admin-specific content on home page */}
+          {user?.role === 'admin' && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={handleAdminDashboard}
+                  className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-gray-400"
+                >
+                  <h4 className="font-medium">User Management</h4>
+                  <p className="text-sm text-gray-500">Manage users and permissions</p>
+                </button>
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-gray-400"
+                >
+                  <h4 className="font-medium">View All Contacts</h4>
+                  <p className="text-sm text-gray-500">See all contacts from all users</p>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
