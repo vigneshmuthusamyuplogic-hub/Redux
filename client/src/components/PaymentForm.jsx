@@ -51,6 +51,7 @@ const PaymentForm = ({ todoData, onSuccess, onCancel }) => {
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: card,
+          
         },
       })
 
